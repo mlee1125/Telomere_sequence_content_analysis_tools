@@ -7,7 +7,6 @@ use threads;
 ###########################################
 # Function Prototypes
 ###########################################
-
 sub parse_file($$@);
 sub find_repeat_block(\%\@\@$$$$);
 sub count_repeats(\%$$$);
@@ -15,7 +14,6 @@ sub count_repeats(\%$$$);
 ###########################################
 # Initialisations
 ###########################################
-
 my $max_num_of_threads = 8;
 my %thread_samples= ();
 my $thread;
