@@ -24,13 +24,7 @@ my $CRITERIA = "4TTAGGGu";
 ###########################################
 # Main
 ###########################################
-
-
 my $OUT = "telomere_variants_count_trimmed_${CRITERIA}.txt";
-
-
-#print "$#ARGV\n";
-
 my %hash = ();
 
 if($#ARGV ne 0){
@@ -80,30 +74,7 @@ foreach my $file (@files){
 	my @input = split("\n", `samtools view $file | cut -f10,11`);
 	my $name;
 	my $type;
-
-#	if($file =~ /.*(.RR\d+)/){
-#		$name = $1;
-#	}
-#	elsif($file =~ /_([ACGT]{6})_/){
-#		$name = $1;
-#	}
-#	els
-	#if($file =~ /^[^_]*_([^_]*)_/){
-	#	$name = $1;
-	#	if($file =~ /^.*Tumour.*/){
-	#		$type = 2;
-	#	} elsif($file =~ /^.*Normal.*/){
-	#		$type = 1;
-	#	}else{
-	#		$type = 0;
-	#	}
-
-	#}
-	#else{
-		$name = $file;
-	#}
-
-	#$hash{$name}{$type}=parse_file($file, $pattern_combined, @input);
+	$name = $file;
 
 	$thread = threads->create(\&parse_file, $file, $pattern_combined, @input);
 	$thread_samples{$thread->tid()}{"name"}=$name;
@@ -115,7 +86,6 @@ foreach my $file (@files){
 		foreach(threads->list(threads::joinable)){
 			$hash{$thread_samples{$_->tid()}{"name"}}{$thread_samples{$_->tid()}{"type"}} = $_->join();
 		}
-#		sleep(1);
 	}
 
 	if(scalar(threads->list(threads::joinable)) >= 10)
@@ -157,16 +127,10 @@ foreach my $ID (sort {$a cmp $b} keys %hash)
         		}
         	}
         }
-        #print OUT "\n";
 }
 
 
 close OUT;
-
-
-# TEST
-
-#parse_file("test", "TTAGGG|GTAGGG", "AGAGTTAGGGTTAGGGATTAGGGCGTAGGGCCA\tABCDABCDABCDABCDABCDABCDABCDABCDA");
 
 ###########################################
 # Fuction definitions
@@ -177,24 +141,16 @@ sub parse_file($$@){
 	my %hash = ();
 	my $seq = "";
 	my $qual = "";
-
 	my $other = "";
 	my $repeat = "";
 	my @other_s = ();
 	my @other_q = ();
-
-
-	#open(DUMP, ">", "${file_name}_other.txt") or die "cannot open > ${file_name}_other_short.txt: $!";
 
 	foreach my $line (@input){
 		chomp $line;
 		($seq, $qual) = split("\t", $line);
 		chomp $seq;
 		chomp $qual;
-#		if($portion > 0){
-#			$seq = substr $seq, 0, $portion;
-#			$qual = substr $qual, 0, $portion;
-#		}
 
 		my $count = 0;
 		my $phred_score = 0;
@@ -222,103 +178,14 @@ sub parse_file($$@){
 			find_repeat_block(%hash, @other_s, @other_q, $seq, $qual, $repeat_pattern, "3");
 		}
 	}
-
-
-	#for(my $i=0; $i < scalar @other_s; $i++){
-	#	my $q_score = 0;
-	#	my $j = 0;
-	#	my @o_seq = ();
-	#	my @o_qual = ();
-	#	#my @window = ();
-	#	#my $window_qual = 0;
-	#	my @window_qual = ();
-	#
-	#	print DUMP $other_s[$i]."\t".$other_q[$i]."\n";
-	#
-	#	if(length($other_s[$i]) < 6){
-	#		foreach (split(//, $other_q[$i])){
-	#			$q_score += (ord($_)-33);
-	#			$j++;
-	#		}
-	#		$q_score /= $j;
-	#
-	#		#print STDERR "$other_s[$i]\t$j\n";
-	#
-	#		if($q_score >= 20){
-	#			print DUMP $other_s[$i] . "\t" . $other_q[$i] . "\t2\n";
-	#			$hash{"other"}{2}+= $j;
-	#		}else{
-	#			print DUMP $other_s[$i] . "\t" . $other_q[$i] . "\t1\n";
-	#			$hash{"other"}{1}+= $j;
-	#		}
-	#	}else{
-	#		print DUMP $other_s[$i] . "\t" . $other_q[$i] . "\t3\n";
-	#
-	#		@o_seq = split(//, $other_s[$i]);
-	#		@o_qual =split(//, $other_q[$i]);
-	#
-	#		#print STDERR length($other_s[$i])."\t$#o_qual\n";
-	#
-	#		for(my $k=0; $k<6; $k++){
-	#			$q_score += (ord($o_qual[$k])-33);
-	#		}
-	#		$q_score /= 6;
-	#		$window_qual[0] = $q_score;
-	#
-	#		my $wqc = 0;
-	#
-	#		for(my $l=6; $l<scalar @o_qual; $l++){
-	#			$q_score -= ((ord($o_qual[$l-6])-33)/6);
-	#			$q_score += ((ord($o_qual[$l])-33)/6);
-	#			$window_qual[$wqc] = $q_score;
-	#			$wqc++;
-	#		}
-	#
-	#		for(my $m=0; $m<scalar @o_qual; $m++){
-	#			my $q = 0;
-	#			my $count = 0;
-	#			my $start = $m-5;
-	#			my $end = $m;
-	#
-	#			if($start < 0){$start = 0;}
-	#			if($end > $#window_qual){$end = $#window_qual;}
-	#
-	#			for(my $h=$start; $h <= $end; $h++){
-	#
-	#				if((ord($window_qual[$h])-33)>=20){
-	#					$q++;
-	#				} else {
-	#					$q--;
-	#				}
-	#			}
-	#
-	#			if($q >= 0){
-	#				$hash{"other"}{4}++;
-	#			}else{
-	#				$hash{"other"}{3}++;
-	#			}
-	#
-	#		}
-	#	}
-	#}
-
-	#close(DUMP);
-
 	return \%hash;
 }
 
 
 sub find_repeat_block(\%\@\@$$$$){
 	my ($hash_ref, $other_seq_ref, $other_qual_ref, $seq, $qual, $pattern, $flag) = @_;
-	#my %hash = %$hash_ref;
-	#my @other_seq = @$other_seq_ref;
-	#my @other_qual = @$other_qual_ref;
-
-# $flag: 0=middle of read, 1=start of read, 2=end of read, 3=whole read #
-
 	if($seq =~ /$pattern/){
 		$seq =~ /^(.*?)((?:$pattern)+)(.*?)$/;
-
 		my $o1 = $1;
 		my $p = $2;
 		my $o2 = $3;
@@ -343,23 +210,10 @@ sub find_repeat_block(\%\@\@$$$$){
 		}
 
 		my $p_q = substr($qual, length($o1), length($p));
-
 		count_repeats(%$hash_ref, $p, $p_q, $pattern);
-
 		return;
 
 	}
-	#else {
-	#	if($flag =~ /[12]/ && length($seq) < 6){
-	#		$hash_ref->{"other"}->{0}+= length($seq);
-	#		return;
-	#	}else{
-	#		push(@$other_seq_ref, $seq);
-	#		push(@$other_qual_ref, $qual);
-	#		return;
-	#	}
-	#}
-
 }
 
 sub count_repeats(\%$$$){
@@ -379,15 +233,7 @@ sub count_repeats(\%$$$){
 			if($phred_score > (ord($x)-33)){
 				$phred_score = (ord($x)-33);
 			}
-
-			#$phred_score += (ord($x)-33);
-			#$hash_ref->{$repeat}->{"qual"}{$i}{int((ord($x)-33)/int(10))}++;
-			#$qual_temp[$i]=(ord($x)-33);
-			#$i++;
 		}
-
-		#$phred_score /= $i;
-
 		$hash_ref->{$repeat}++;
 
 	}
