@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-
 use strict;
 use warnings;
 
@@ -20,22 +19,18 @@ unless($input_file =~ /^(.*)\.(?:fastq|fq)$/){
 }
 
 my $file_prefix = $1;
-#my $out_file = "$file_prefix.variants_analysis_6.csv";
-my $out_fileQ = "$file_prefix.quality_analysis_6.csv";
+my $out_file = "$file_prefix.variants_analysis_6.csv";
 
 open(INPUT, "<", $input_file) or die "Cannot open < $input_file: $!\n";
-# open(OUT, ">", $out_file) or die "Cannot open > $out_file: $!\n";
-open(OUTQ, ">", $out_fileQ) or die "Cannot open > $out_fileQ: $!\n";
+open(OUT, ">", $out_file) or die "Cannot open > $out_file: $!\n";
 
 my %hash = ();
-my %Qhash = ();
 my $phase = "";
 my $end = "";
 my $id = "";
 my $seq = "";
 my $qual = "";
 my @seq = "";
-my @qual = "";
 my $seq_len = "";
 my $strand_type = "";
 
@@ -117,21 +112,15 @@ while(my $line = <INPUT>){
 	
 	if($strand_type eq "G"){
 		chomp $seq;
-		chomp $qual;
 		@seq = split("", $seq);
-		@qual = split("", $qual);
 		for(my $i = $phase; $i < (scalar @seq - $end); $i++){
 			$hash{"G"}{int($seq_len / $BIN_SIZE)}{int($i / $WINDOW_SIZE)}{($i - $phase)%6}{$seq[$i]}++;
-			$Qhash{"G"}{int($seq_len / $BIN_SIZE)}{int($i / $WINDOW_SIZE)}{($i - $phase)%6}{(ord($qual[$i])-33)}++;
 		}
 	}elsif($strand_type eq "C"){
 		chomp $seq;
-		chomp $qual;
 		@seq = split("", $seq);
-		@qual = split("", $qual);
 		for(my $i = $phase; $i < (scalar @seq - $end); $i++){
 			$hash{"C"}{int($seq_len / $BIN_SIZE)}{int($i / $WINDOW_SIZE)}{($i - $phase)%6}{$seq[$i]}++;
-			$Qhash{"C"}{int($seq_len / $BIN_SIZE)}{int($i / $WINDOW_SIZE)}{($i - $phase)%6}{(ord($qual[$i])-33)}++;
 		}
 	}elsif($strand_type eq "mixed"){
 		my $sub_seq = "";
@@ -176,17 +165,17 @@ while(my $line = <INPUT>){
 	}
 }
 
-print OUTQ "strand,seq_len,seq_pos,base_pos,quality,count\n";
+print OUT "strand,seq_len,seq_pos,base_pos,base_type,count\n";
 
-foreach my $key_strand (sort {$b cmp $a} keys %Qhash){
-	foreach my $key_sl (sort {$a <=> $b} keys $Qhash{$key_strand}){
+foreach my $key_strand (sort {$b cmp $a} keys %hash){
+	foreach my $key_sl (sort {$a <=> $b} keys $hash{$key_strand}){
 		for(my $key_sp = 0; $key_sp < $MAX_RL/$WINDOW_SIZE; $key_sp++){
 			for(my $key_bp = 0; $key_bp < 6; $key_bp++){
-				foreach my $key_bt (1 .. 45){
-					if(defined $Qhash{$key_strand}{$key_sl}{$key_sp}{$key_bp}{$key_bt}){
-						print OUTQ $key_strand.",".$key_sl*$BIN_SIZE.",".$key_sp*$WINDOW_SIZE.",$key_bp,$key_bt,$Qhash{$key_strand}{$key_sl}{$key_sp}{$key_bp}{$key_bt}\n";
+				foreach my $key_bt ("A", "C", "G", "T"){
+					if(defined $hash{$key_strand}{$key_sl}{$key_sp}{$key_bp}{$key_bt}){
+						print OUT $key_strand.",".$key_sl*$BIN_SIZE.",".$key_sp*$WINDOW_SIZE.",$key_bp,$key_bt,$hash{$key_strand}{$key_sl}{$key_sp}{$key_bp}{$key_bt}\n";
 					}else{
-						print OUTQ $key_strand.",".$key_sl*$BIN_SIZE.",".$key_sp*$WINDOW_SIZE.",$key_bp,$key_bt,0\n";
+						print OUT $key_strand.",".$key_sl*$BIN_SIZE.",".$key_sp*$WINDOW_SIZE.",$key_bp,$key_bt,0\n";
 					}
 				}
 			}
@@ -195,5 +184,4 @@ foreach my $key_strand (sort {$b cmp $a} keys %Qhash){
 }
 
 close INPUT;
-# close OUT;
-close OUTQ;
+close OUT;
