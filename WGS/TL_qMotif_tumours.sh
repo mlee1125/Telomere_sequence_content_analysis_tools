@@ -2,7 +2,7 @@
 
 echo "id,includesN,unmappedN,includesT,unmappedT"
 
-for f in `ls *tumour*qmotif_9TTAGGGc.qmotif.xml`
+for f in `ls *tumour*qmotif_9TTAGGGu.qmotif.xml`
 do
 	id=`echo $f | sed -r "s/^[^_]*_([A-Z]*)([0-9]*)_.*$/\1_\2/"`
 	id2=`echo $f | sed -r "s/^[^_]*_([A-Z]*)([0-9]*)_.*$/\1\2/"`
