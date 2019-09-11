@@ -2,17 +2,14 @@
 
 require(dplyr)
 args = commandArgs(trailingOnly=TRUE)
-seqErrCSV = "./telo_seq_error3.csv"
+seqErrCSV = "./telo_seq_error.csv"
 
 normalit <- function(m){(m/sum(m))}
 
-# test if there are one or two areguments: if not, return an error
+# test if there are two areguments: if not, return an error
 if (length(args)==2) {
-  # default output file
-  #args[2] = "out.txt"
   seqError <- data.frame(read.csv(seqErrCSV))
   inputCSV <- data.frame(read.csv(args[1]))
-  #inputCSV <- read.csv("/Users/mlee/OneDrive - CMRI/TMM classifier/TCGA/ESCA/telomere_variants_count_trimmed.txt")
   inputCSV[,2] <- factor(inputCSV[,2])
   
   strandSums <- aggregate(inputCSV[,"Count"], by=as.list(inputCSV[,c(1:2,4)]), FUN=sum)
