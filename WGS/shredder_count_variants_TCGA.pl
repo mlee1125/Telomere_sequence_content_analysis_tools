@@ -24,7 +24,7 @@ my $CRITERIA = "4TTAGGGu";
 ###########################################
 # Main
 ###########################################
-my $OUT = "telomere_variants_count_trimmed_${CRITERIA}.txt";
+my $OUT = "telomere_variants_count_trimmed_${CRITERIA}.csv";
 my %hash = ();
 
 if($#ARGV ne 0){
