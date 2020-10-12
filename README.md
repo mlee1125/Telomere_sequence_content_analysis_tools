@@ -3,10 +3,10 @@ Collection of scripts used in the publication ``Lee, M., et al, 2018, "Telomere 
 
 Contains scripts used to analyse telomere sequence content from NGS data and a random forest classifier that is able to predict ALT-status from telomere sequence content.
 
-## Telomere Maintenance Mechanism classifer (WGS_telomere_ALT_classifier/)
+## ALT classifer (WGS_ALT_classifier/)
 R project that contrains scripts used to create and run the ALT classifier used in the publication titled "Telomere sequence content can be used to determine ALT activity in tumours", DOI: 10.1093/nar/gky297.
 
-## Scripts for telomere controls (telo_ctrl/)
+## Scripts for telomere controls (analysis_of_telo_ctrl/)
 ### sort_telo_ctrls.pl
 Usage: perl sort_telo_ctrls.pl <input.fastq>
 
@@ -21,7 +21,7 @@ Description: Analyses the reads from the fastq file, counting the number of each
 
 Output files: *.variants_analysis_6.csv
 
-## Scripts for WGS data
+## Scripts for WGS data (analysis_of_telomere_sequences_from_WGS/)
 ### TL_qMotif_tumours.sh
 Usage: sh TL_qMotif_tumours.sh
 
