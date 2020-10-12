@@ -1,5 +1,10 @@
 # Telomere_sequence_content_analysis_tools
-Collection of scripts developed to analyse telomere sequence content
+Collection of scripts used in the publication ``Lee, M., et al, 2018, "Telomere sequence content can be used to determine ALT activity in tumours", DOI: 10.1093/nar/gky297.``
+
+Contains scripts used to analyse telomere sequence content from NGS data and a random forest classifier that is able to predict ALT-status from telomere sequence content.
+
+## Telomere Maintenance Mechanism classifer (WGS_telomere_ALT_classifier/)
+R project that contrains scripts used to create and run the ALT classifier used in the publication titled "Telomere sequence content can be used to determine ALT activity in tumours", DOI: 10.1093/nar/gky297.
 
 ## Scripts for telomere controls (telo_ctrl/)
 ### sort_telo_ctrls.pl
